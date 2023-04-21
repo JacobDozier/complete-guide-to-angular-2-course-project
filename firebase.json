@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": "/dist/complete-guide-to-angular-2-course-project",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
