@@ -1,5 +1,5 @@
 import { Ingredient } from "../../shared/ingredient.model";
-import * as ShoppingListActions from "./shopping-list.action";
+import * as ShoppingListActions from "./shopping-list.actions";
 
 export interface State {
   ingredients: Ingredient[];

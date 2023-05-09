@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import { Ingredient } from '../shared/ingredient.model';
 import * as fromApp from '../store/app.reducer';
-import * as ShoppingListActions from '../shopping-list/store/shopping-list.action';
+import * as ShoppingListActions from './store/shopping-list.actions';
 
 @Component({
   selector: 'app-shopping-list',
