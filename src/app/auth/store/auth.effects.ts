@@ -68,8 +68,7 @@ export class AuthEffects {
               })
             );
         })
-      ),
-    { dispatch: false }
+    )
   );
 
   authSuccess = createEffect(
