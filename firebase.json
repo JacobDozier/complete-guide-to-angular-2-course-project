@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "/dist/complete-guide-to-angular-2-course-project",
+    "public": "dist/complete-guide-to-angular-2-course-project",
     "ignore": [
       "firebase.json",
       "**/.*",
