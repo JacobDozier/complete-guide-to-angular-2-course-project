@@ -1,12 +1,16 @@
 import { Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+
 import { RecipeService } from '../recipe.service';
+import * as fromApp from '../../store/app.reducer';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-recipe-edit',
   templateUrl: './recipe-edit.component.html',
-  styleUrls: ['./recipe-edit.component.css']
+  styleUrls: ['./recipe-edit.component.css'],
 })
 export class RecipeEditComponent {
   id: number;
@@ -17,9 +21,12 @@ export class RecipeEditComponent {
     return (<FormArray>this.recipeForm.get('ingredients')).controls;
   }
 
-  constructor(private recipeService: RecipeService,
+  constructor(
+    private recipeService: RecipeService,
     private router: Router,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute,
+    private store: Store<fromApp.AppState>,
+  ) {}
 
   ngOnInit() {
     this.route.params.subscribe((params: Params) => {
@@ -42,11 +49,11 @@ export class RecipeEditComponent {
   onAddIngredient() {
     (<FormArray>this.recipeForm.get('ingredients')).push(
       new FormGroup({
-        'name': new FormControl(null, Validators.required),
-        'amount': new FormControl(null, [
+        name: new FormControl(null, Validators.required),
+        amount: new FormControl(null, [
           Validators.required,
-          Validators.pattern(/^[1-9]+[0-9]*$/)
-        ])
+          Validators.pattern(/^[1-9]+[0-9]*$/),
+        ]),
       })
     );
   }
@@ -56,7 +63,7 @@ export class RecipeEditComponent {
   }
 
   onCancelEdit() {
-    this.router.navigate(['../'], {relativeTo: this.route});
+    this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   private initForm() {
@@ -66,31 +73,36 @@ export class RecipeEditComponent {
     let recipeIngredients = new FormArray([]);
 
     if (this.isEditMode) {
-      const recipe = this.recipeService.getRecipe(this.id);
-      recipeName = recipe.name;
-      recipeImagePath = recipe.imagePath;
-      recipeDescription = recipe.description;
-      if (recipe['ingredients']) {
-        for (let ingredient of recipe.ingredients) {
-          recipeIngredients.push(
-            new FormGroup({
-              'name': new FormControl(ingredient.name, Validators.required),
-              'amount': new FormControl(ingredient.amount, [
-                Validators.required,
-                Validators.pattern(/^[1-9]+[0-9]*$/)
-              ])
-            })
-          );
+      // const recipe = this.recipeService.getRecipe(this.id);
+      this.store.select('recipes').pipe(map(recipeState => {
+        return recipeState.recipes.find((recipe, index) => {
+          return index === this.id;
+        });
+      })).subscribe(recipe => {
+        recipeName = recipe.name;
+        recipeImagePath = recipe.imagePath;
+        recipeDescription = recipe.description;
+        if (recipe['ingredients']) {
+          for (let ingredient of recipe.ingredients) {
+            recipeIngredients.push(
+              new FormGroup({
+                name: new FormControl(ingredient.name, Validators.required),
+                amount: new FormControl(ingredient.amount, [
+                  Validators.required,
+                  Validators.pattern(/^[1-9]+[0-9]*$/),
+                ]),
+              })
+            );
+          }
         }
-      }
+      })
     }
 
     this.recipeForm = new FormGroup({
-      'name': new FormControl(recipeName, Validators.required),
-      'imagePath': new FormControl(recipeImagePath, Validators.required),
-      'description': new FormControl(recipeDescription, Validators.required),
-      'ingredients': recipeIngredients
+      name: new FormControl(recipeName, Validators.required),
+      imagePath: new FormControl(recipeImagePath, Validators.required),
+      description: new FormControl(recipeDescription, Validators.required),
+      ingredients: recipeIngredients,
     });
   }
-
 }
